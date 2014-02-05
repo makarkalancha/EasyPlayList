@@ -1,15 +1,15 @@
 package com.easyplaylist.data;
 
-import java.io.File;
 import java.io.FileDescriptor;
 
 import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+
+import com.easyplaylist.utils.StringUtils;
 
 public class Song {
 	private long _id;
@@ -23,7 +23,7 @@ public class Song {
 		this._id = id;
 		this._data = data;
 		this._name = name;
-		this._duration = duration;
+		this._duration = StringUtils.convertMsToTimeFormat(duration);
 		this._album_id = album;
 	}
 	
