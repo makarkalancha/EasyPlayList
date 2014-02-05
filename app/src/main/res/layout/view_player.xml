@@ -75,7 +75,7 @@
         android:text="end_time"
         />
 
-    <TextView
+    <com.easyplaylist.View.InfiniteMarqueeTextView
         android:id="@+id/song_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -85,5 +85,14 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="song_name"
         android:textAlignment="center"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+
+        android:singleLine="true"
         />
+    <!--
+     android:focusable="true"
+        android:focusableInTouchMode="true"
+        -->
 </RelativeLayout>

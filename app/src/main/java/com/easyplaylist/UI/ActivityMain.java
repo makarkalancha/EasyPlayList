@@ -22,6 +22,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easyplaylist.View.InfiniteMarqueeTextView;
 import com.easyplaylist.data.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
@@ -72,7 +73,8 @@ public class ActivityMain extends Activity{
         nextButton = (ImageButton) findViewById(R.id.forward);
         prevButton = (ImageButton) findViewById(R.id.rewind);
         pauseButton = (ImageButton) findViewById(R.id.pause);
-        songName = (TextView) findViewById(R.id.song_name);
+//        songName = (TextView) findViewById(R.id.song_name);
+        songName = (InfiniteMarqueeTextView) findViewById(R.id.song_name);
         startTimeField = (TextView) findViewById(R.id.start_time);
         endTimeField = (TextView) findViewById(R.id.end_time);
 
@@ -196,6 +198,7 @@ public class ActivityMain extends Activity{
         }
         player = MediaPlayer.create(ActivityMain.this, Uri.parse(song.getData()));
         player.start();
+//        songName.setSelected(true);
         songName.setText(song.getData());
         startTime = player.getCurrentPosition();
         endTime = player.getDuration();
@@ -215,6 +218,7 @@ public class ActivityMain extends Activity{
     public void pause(View view){
         Toast.makeText(appInst, "Pausing song",Toast.LENGTH_LONG).show();
         player.pause();
+        songName.setSelected(false);
         pauseButton.setEnabled(false);
         playButton.setEnabled(true);
     }
