@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class StringUtils {
     public static String convertMsToTimeFormat(String timeInMs) {
-        Long timeInMsLong = Long.valueOf(timeInMs);
-        Long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMsLong);
-        Long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMsLong - TimeUnit.MINUTES.toMillis(minutes));
+        double timeInMsDouble = Double.valueOf(timeInMs);
+        Long minutes = TimeUnit.MILLISECONDS.toMinutes((long) timeInMsDouble);
+        Long seconds = TimeUnit.MILLISECONDS.toSeconds((long)timeInMsDouble - TimeUnit.MINUTES.toMillis(minutes));
         return minutes.toString()+":"+(seconds > 9 ? seconds.toString() : "0"+seconds.toString());
     }
 
