@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -22,7 +21,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.easyplaylist.View.InfiniteMarqueeTextView;
 import com.easyplaylist.data.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
@@ -35,7 +33,6 @@ public class ActivityMain extends Activity{
     private ImageButton playButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
-    private ImageButton pauseButton;
     private TextView songName;
     private TextView startTimeField;
     private TextView endTimeField;
@@ -51,14 +48,15 @@ public class ActivityMain extends Activity{
     private Handler handler = new Handler();
     private long forwardTime = TimeUnit.SECONDS.toMillis(5);
     private long backwardTime = TimeUnit.SECONDS.toMillis(5);
+    private static final int SEEK_STEP = 1000;
 
     private Runnable UpdateSongTime = new Runnable() {
         @Override
         public void run() {
             startTime = player.getCurrentPosition();
             startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
-            seekBar.setProgress((int)startTime);
-            handler.postDelayed(this, 100);
+            seekBar.setProgress((int) startTime);
+            handler.postDelayed(this, SEEK_STEP);
         }
     };
 	
@@ -69,17 +67,18 @@ public class ActivityMain extends Activity{
 //        text = (TextView) findViewById(R.id.text);
         list_v = (ListView) findViewById(R.id.list_v);
         seekBar = (SeekBar) findViewById(R.id.seek_bar);
-        playButton = (ImageButton) findViewById(R.id.play);
-        nextButton = (ImageButton) findViewById(R.id.forward);
-        prevButton = (ImageButton) findViewById(R.id.rewind);
-        pauseButton = (ImageButton) findViewById(R.id.pause);
-//        songName = (TextView) findViewById(R.id.song_name);
-        songName = (InfiniteMarqueeTextView) findViewById(R.id.song_name);
+        playButton = (ImageButton) findViewById(R.id.play_pause);
+        nextButton = (ImageButton) findViewById(R.id.next);
+        prevButton = (ImageButton) findViewById(R.id.previous);
+        songName = (TextView) findViewById(R.id.song_name);
+        songName.setSelected(true);
+//        songName.setEnabled(true);
+
+
         startTimeField = (TextView) findViewById(R.id.start_time);
         endTimeField = (TextView) findViewById(R.id.end_time);
 
         seekBar.setClickable(true);
-        pauseButton.setEnabled(false);
 
         appInst = (App) getApplicationContext();
 //        File dir = new File(appInst.MUSIC_PATH);
@@ -154,9 +153,9 @@ public class ActivityMain extends Activity{
 			@Override
 			public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
 				Song s = songs.get(position);
-				Toast.makeText(appInst,
-					      "Click ListItem path " + s.getData()+"; duration:"+s.getDuration(), Toast.LENGTH_LONG)
-					      .show();
+//				Toast.makeText(appInst,
+//					      "Click ListItem path " + s.getData()+"; duration:"+s.getDuration(), Toast.LENGTH_LONG)
+//					      .show();
 //                if(player != null){
 //                    player.reset();
 //                }
@@ -188,18 +187,18 @@ public class ActivityMain extends Activity{
         }else if(songs.size() > 0){
             playSong(songs.get(0));
         }
-        Toast.makeText(appInst, "No songs",Toast.LENGTH_LONG).show();
+//        Toast.makeText(appInst, "No songs",Toast.LENGTH_LONG).show();
     }
 
     public void playSong(Song song){
-        Toast.makeText(appInst, "Playing song",Toast.LENGTH_LONG).show();
+//        Toast.makeText(appInst, "Playing song",Toast.LENGTH_LONG).show();
         if(player != null){
             player.reset();
         }
         player = MediaPlayer.create(ActivityMain.this, Uri.parse(song.getData()));
         player.start();
-//        songName.setSelected(true);
         songName.setText(song.getData());
+        Log.i(">>>>", "is songName selected:" + songName.isSelected());
         startTime = player.getCurrentPosition();
         endTime = player.getDuration();
         if(oneTimeOnly == 0){
@@ -209,17 +208,18 @@ public class ActivityMain extends Activity{
 
         startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
         endTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(endTime)));
-        seekBar.setProgress((int)startTime);
-        handler.postDelayed(UpdateSongTime,100);
-        pauseButton.setEnabled(true);
-        playButton.setEnabled(false);
+        seekBar.setProgress((int) startTime);
+        handler.postDelayed(UpdateSongTime, SEEK_STEP);
+
+//        songName.setSelected(true);
+//        songName.setEnabled(true);
+//        songName.setFocusableInTouchMode(true);
     }
 
     public void pause(View view){
-        Toast.makeText(appInst, "Pausing song",Toast.LENGTH_LONG).show();
+//        Toast.makeText(appInst, "Pausing song",Toast.LENGTH_LONG).show();
         player.pause();
         songName.setSelected(false);
-        pauseButton.setEnabled(false);
         playButton.setEnabled(true);
     }
 
