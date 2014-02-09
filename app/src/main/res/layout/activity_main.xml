@@ -8,6 +8,8 @@
     android:orientation="vertical"
 
     android:background="@android:color/holo_blue_bright"
+
+    android:id="@+id/linear_main"
     >
 <!--
 	android:orientation="vertical"

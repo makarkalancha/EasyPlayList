@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,6 +37,8 @@ public class ActivityMain extends Activity{
     private TextView songName;
     private TextView startTimeField;
     private TextView endTimeField;
+
+    private LinearLayout ll;
 
     private List<Song> songs = new ArrayList<Song>();
     private int oneTimeOnly = 0;
@@ -63,6 +66,8 @@ public class ActivityMain extends Activity{
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ll = (LinearLayout) findViewById(R.id.linear_main);
         
 //        text = (TextView) findViewById(R.id.text);
         list_v = (ListView) findViewById(R.id.list_v);
@@ -99,8 +104,8 @@ public class ActivityMain extends Activity{
         		MediaStore.Audio.Media.ALBUM_ID
         		
         };
-//        Log.i(">>uri",Uri.fromParts("content", appInst.MUSIC_PATH, null).toString());
-//        Log.i(">>uri",Uri.parse(appInst.MUSIC_PATH).toString());
+//        Log.i(appInst.LOG_TAG+"uri",Uri.fromParts("content", appInst.MUSIC_PATH, null).toString());
+//        Log.i(appInst.LOG_TAG+"uri",Uri.parse(appInst.MUSIC_PATH).toString());
 //        String where = MediaStore.Audio.Media.MIME_TYPE  + "= 'audio/mpeg'" + " AND "+
 //        		MediaStore.Audio.Artists._ID +" IN (" +
 //        				"SELECT "+MediaStore.Audio.Media.ARTIST_ID+" FROM AUDIO "+
@@ -124,10 +129,10 @@ public class ActivityMain extends Activity{
 
         if (curs == null) {
             Toast.makeText(getApplicationContext(), "query failed, handle error", Toast.LENGTH_LONG).show();
-//            Log.e("Cursor", "query failed, handle error");
+//            Log.e(appInst.LOG_TAG, "query failed, handle error");
         } else if (!curs.moveToFirst()) {
         	Toast.makeText(getApplicationContext(), "no media on the device", Toast.LENGTH_LONG).show();
-//        	Log.e("Cursor", "no media on the device");
+//        	Log.e(appInst.LOG_TAG, "no media on the device");
         } else {
         	do {
 //        		long id = curs.getLong(0);
@@ -137,11 +142,11 @@ public class ActivityMain extends Activity{
 //        		textSt += Long.toString(id)+";"+data+";"+name+";"+duration+"\r\n\r\n";
         		Song s = new Song(curs.getLong(0),curs.getString(1),curs.getString(2),curs.getString(3),curs.getLong(4));
         		songs.add(s);
-        		Log.i("song"+s.getId(),"data:"+s.getData()+";name:"+s.getName()+";duration:"+s.getDuration());
+        		Log.i(appInst.LOG_TAG+"song"+s.getId(),"data:"+s.getData()+";name:"+s.getName()+";duration:"+s.getDuration());
         	}while(curs.moveToNext());
         }
         
-        Log.i("info","size:"+songs.size());
+        Log.i(appInst.LOG_TAG+"info","size:"+songs.size());
         
         
 //        text.setText(textSt);
@@ -198,7 +203,16 @@ public class ActivityMain extends Activity{
         player = MediaPlayer.create(ActivityMain.this, Uri.parse(song.getData()));
         player.start();
         songName.setText(song.getData());
-        Log.i(">>>>", "is songName selected:" + songName.isSelected());
+
+
+        Log.i(appInst.LOG_TAG, "is songName selected:" + songName.isSelected());
+        Log.i(appInst.LOG_TAG, "view focus:" + ll.getFocusedChild());
+        list_v.setSelected(false);
+        View focusedView = ll.getFocusedChild();
+        focusedView.clearFocus();
+        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
+
+
         startTime = player.getCurrentPosition();
         endTime = player.getDuration();
         if(oneTimeOnly == 0){
@@ -214,13 +228,18 @@ public class ActivityMain extends Activity{
 //        songName.setSelected(true);
 //        songName.setEnabled(true);
 //        songName.setFocusableInTouchMode(true);
+        songName.setFocusable(true);
+        Log.i(appInst.LOG_TAG, "request focus:" + songName.requestFocus());
+        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
+
+        songName.setSelected(true);
     }
 
     public void pause(View view){
 //        Toast.makeText(appInst, "Pausing song",Toast.LENGTH_LONG).show();
         player.pause();
-        songName.setSelected(false);
-        playButton.setEnabled(true);
+//        songName.setSelected(false);
+//        playButton.setEnabled(true);
     }
 
     public void forward(View view){

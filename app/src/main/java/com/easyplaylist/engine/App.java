@@ -6,11 +6,12 @@ import android.os.Environment;
 
 public class App extends Application{
 	private static App singleton;
-	
+
 //	public static final String MUSIC_PATH = "/storage/emulated/0/Music/!_test";
 	public static final String MUSIC_PATH = Environment.getExternalStorageDirectory().toString()+"/Music/!_test";
-	
-	public App getInstance(){
+    public static final String LOG_TAG = "LOG_EP>>>";
+
+    public App getInstance(){
 		return singleton;
 	}
 	
