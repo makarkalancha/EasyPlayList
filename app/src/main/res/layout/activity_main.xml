@@ -7,11 +7,13 @@
     android:weightSum="4"
     android:orientation="vertical"
 
-    android:background="@android:color/holo_blue_bright"
+
 
     android:id="@+id/linear_main"
     >
 <!--
+android:background="@android:color/holo_blue_bright"
+
 	android:orientation="vertical"
     <ScrollView
 	    android:layout_width="fill_parent"
@@ -69,10 +71,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
 
-        android:background="#00ff00"
+
 
         >
-        <!--<com.easyplaylist.View.InfiniteMarqueeTextView-->
+        <!--android:background="#00ff00"-->
         <TextView
             android:id="@+id/song_name"
             android:layout_width="match_parent"
@@ -107,9 +109,11 @@
             android:layout_width="fill_parent"
             android:orientation="horizontal"
 
-            android:background="#ff0000"
+
             >
             <!--
+            android:background="#ff0000"
+
             android:layout_toRightOf="@id/start_time"
                 android:layout_toLeftOf="@id/end_time"
 
