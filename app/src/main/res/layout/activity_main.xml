@@ -50,17 +50,155 @@
         android:background="#ff0000"
         -->
 	 </ListView>
-
-    <include
-        layout="@layout/view_player"
-        android:id="@+id/player"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-
-        android:layout_weight="1"
-        />
     <!--
+        <include
+            layout="@layout/view_player"
+            android:id="@+id/player"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
 
-    -->
+            android:layout_weight="1"
+            />
+
+
+        -->
+
+    <LinearLayout
+        android:id="@+id/player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        android:background="#00ff00"
+
+        >
+        <!--<com.easyplaylist.View.InfiniteMarqueeTextView-->
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAlignment="center"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            />
+        <!--
+        android:clickable="true"
+        android:freezesText="true"
+        android:selectAllOnFocus="true"
+        android:focusable="true"
+            android:focusableInTouchMode="true"
+
+    android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+        android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+
+            -->
+        <FrameLayout
+            android:id="@+id/linear_song_name"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:orientation="horizontal"
+
+            android:background="#ff0000"
+            >
+            <!--
+            android:layout_toRightOf="@id/start_time"
+                android:layout_toLeftOf="@id/end_time"
+
+            -->
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+
+                android:layout_gravity="center"
+                />
+
+            <TextView
+                android:id="@+id/start_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="start_time"
+
+                android:layout_gravity="center_vertical|left"
+                />
+            <!--
+
+
+            android:layout_alignRight="@id/rewind"
+                android:layout_alignTop="@id/seek_bar"
+            -->
+
+
+            <TextView
+                android:id="@+id/end_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="end_time"
+
+                android:layout_gravity="center_vertical|right"
+                />
+            <!--
+
+
+            android:layout_alignLeft="@id/forward"
+                android:layout_alignTop="@id/seek_bar"
+            -->
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            >
+            <ImageButton
+                android:id="@+id/previous"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_previous"
+                android:onClick="previous"
+                android:layout_weight="1"
+                />
+
+            <ImageButton
+                android:id="@+id/play_pause"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_play"
+                android:layout_weight="1"
+                />
+            <ImageButton
+                android:id="@+id/next"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_next"
+                android:onClick="next"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+
+
+
+
+
+
+
+
+    </LinearLayout>
 
 </LinearLayout>

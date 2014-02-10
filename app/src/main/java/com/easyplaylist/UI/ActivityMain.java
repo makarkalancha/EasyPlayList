@@ -13,6 +13,8 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
@@ -78,6 +80,11 @@ public class ActivityMain extends Activity{
         songName = (TextView) findViewById(R.id.song_name);
         songName.setSelected(true);
 //        songName.setEnabled(true);
+//        Animation textToLeft = new TranslateAnimation(1000, -1000, 0, 0);
+//        textToLeft.setDuration(TimeUnit.SECONDS.toMillis(20));
+//        textToLeft.setRepeatCount(Animation.INFINITE);
+//        textToLeft.setRepeatMode(Animation.RESTART);
+//        songName.setAnimation(textToLeft);
 
 
         startTimeField = (TextView) findViewById(R.id.start_time);
@@ -205,12 +212,12 @@ public class ActivityMain extends Activity{
         songName.setText(song.getData());
 
 
-        Log.i(appInst.LOG_TAG, "is songName selected:" + songName.isSelected());
-        Log.i(appInst.LOG_TAG, "view focus:" + ll.getFocusedChild());
-        list_v.setSelected(false);
-        View focusedView = ll.getFocusedChild();
-        focusedView.clearFocus();
-        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
+//        Log.i(appInst.LOG_TAG, "is songName selected:" + songName.isSelected());
+//        Log.i(appInst.LOG_TAG, "view focus:" + ll.getFocusedChild());
+//        list_v.setSelected(false);
+//        View focusedView = ll.getFocusedChild();
+//        focusedView.clearFocus();
+//        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
 
 
         startTime = player.getCurrentPosition();
@@ -228,11 +235,13 @@ public class ActivityMain extends Activity{
 //        songName.setSelected(true);
 //        songName.setEnabled(true);
 //        songName.setFocusableInTouchMode(true);
-        songName.setFocusable(true);
-        Log.i(appInst.LOG_TAG, "request focus:" + songName.requestFocus());
-        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
-
-        songName.setSelected(true);
+//        list_v.setSelected(false);
+//        songName.setFocusable(true);
+//        Log.i(appInst.LOG_TAG, "request focus:" + songName.requestFocus());
+//        songName.setSelected(true);
+//        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
+//        LinearLayout player = (LinearLayout) findViewById(R.id.player);
+//        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
     }
 
     public void pause(View view){
