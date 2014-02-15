@@ -43,7 +43,7 @@
         android:layout_marginLeft="24dp"
         android:layout_toRightOf="@id/rewind"
         android:src="@android:drawable/ic_media_play"
-        android:onClick="play"
+        android:onClick="playPause"
         />
 
     <SeekBar

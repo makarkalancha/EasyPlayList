@@ -43,6 +43,7 @@ public class ActivityMain extends Activity{
     private LinearLayout ll;
 
     private List<Song> songs = new ArrayList<Song>();
+    private int currentlyPlayingIndex = -1;
     private int oneTimeOnly = 0;
 
     private App appInst;
@@ -51,8 +52,10 @@ public class ActivityMain extends Activity{
     private double startTime = 0;
     private double endTime = 0;
     private Handler handler = new Handler();
-    private long forwardTime = TimeUnit.SECONDS.toMillis(5);
-    private long backwardTime = TimeUnit.SECONDS.toMillis(5);
+
+
+//    private long forwardTime = TimeUnit.SECONDS.toMillis(5);
+//    private long backwardTime = TimeUnit.SECONDS.toMillis(5);
     private static final int SEEK_STEP = 1000;
 
     private Runnable UpdateSongTime = new Runnable() {
@@ -165,6 +168,7 @@ public class ActivityMain extends Activity{
 			@Override
 			public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
 				Song s = songs.get(position);
+                currentlyPlayingIndex = position;
 //				Toast.makeText(appInst,
 //					      "Click ListItem path " + s.getData()+"; duration:"+s.getDuration(), Toast.LENGTH_LONG)
 //					      .show();
@@ -192,12 +196,40 @@ public class ActivityMain extends Activity{
 			}
         	
 		});
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playPause(view);
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                forward(view);
+            }
+        });
+
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rewind(view);
+            }
+        });
 	}
-    public void play(View view){
+    public void playPause(View view){
         if(player != null){
-            player.start();
+            if(player.isPlaying()){
+                player.pause();
+                playButton.setImageResource(R.drawable.ic_action_pause);
+            }else{
+                player.start();
+                playButton.setImageResource(R.drawable.ic_action_play);
+            }
         }else if(songs.size() > 0){
             playSong(songs.get(0));
+            currentlyPlayingIndex = 0;
         }
 //        Toast.makeText(appInst, "No songs",Toast.LENGTH_LONG).show();
     }
@@ -252,11 +284,25 @@ public class ActivityMain extends Activity{
     }
 
     public void forward(View view){
-
+        if(songs.size() > 0){
+            if(currentlyPlayingIndex == songs.size() - 1){
+                currentlyPlayingIndex = 0;
+            }else{
+                currentlyPlayingIndex++;
+            }
+            playSong(songs.get(currentlyPlayingIndex));
+        }
     }
 
     public void rewind(View view){
-
+        if(songs.size() > 0){
+            if(currentlyPlayingIndex == 0){
+                currentlyPlayingIndex = songs.size()-1;
+            }else{
+                currentlyPlayingIndex--;
+            }
+            playSong(songs.get(currentlyPlayingIndex));
+        }
     }
 
 //    @Override
