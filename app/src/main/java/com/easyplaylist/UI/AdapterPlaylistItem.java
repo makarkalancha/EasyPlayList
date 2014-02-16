@@ -74,7 +74,7 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
 //        Log.i(App.LOG_TAG+"adapter3", "cur_pos: " + App.currentlyPlayingIndex+"; pos: "+position+"; equal: "+(App.currentlyPlayingIndex == position));
         if(App.currentlyPlayingIndex == position){
             rowView.setBackgroundResource(R.color.list_adapter_active_color);
-            Log.i(App.LOG_TAG+"adapter3", "cur_pos: " + App.currentlyPlayingIndex+"; pos: "+position+"; equal: "+(App.currentlyPlayingIndex == position));
+//            Log.i(App.LOG_TAG+"adapter3", "cur_pos: " + App.currentlyPlayingIndex+"; pos: "+position+"; equal: "+(App.currentlyPlayingIndex == position));
         }else{
             rowView.setBackgroundResource(R.color.list_adapter_def_color);
         }

@@ -15,13 +15,12 @@ public final class R {
         public static final int list_adapter_def_color=0x7f040001;
     }
     public static final class drawable {
-        public static final int bg_color=0x7f020000;
-        public static final int ic_action_next=0x7f020001;
-        public static final int ic_action_pause=0x7f020002;
-        public static final int ic_action_play=0x7f020003;
-        public static final int ic_action_previous=0x7f020004;
-        public static final int ic_action_stop=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
+        public static final int ic_action_next=0x7f020000;
+        public static final int ic_action_pause=0x7f020001;
+        public static final int ic_action_play=0x7f020002;
+        public static final int ic_action_previous=0x7f020003;
+        public static final int ic_action_stop=0x7f020004;
+        public static final int ic_launcher=0x7f020005;
     }
     public static final class id {
         public static final int back=0x7f07000f;

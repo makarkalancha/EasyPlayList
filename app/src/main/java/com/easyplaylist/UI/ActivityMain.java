@@ -12,9 +12,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
@@ -45,6 +47,9 @@ public class ActivityMain extends Activity{
     private List<Song> songs = new ArrayList<Song>();
 //    private int currentlyPlayingIndex = -1;
     private int oneTimeOnly = 0;
+    private AdapterPlaylistItem adapter;
+    private int _firstVisibleItem = -1;
+    private int _visibleItemCount = -1;
 
     private App appInst;
 
@@ -161,7 +166,7 @@ public class ActivityMain extends Activity{
         
 //        text.setText(textSt);
 //        final AdapterPlaylistItem adapter = new AdapterPlaylistItem(this, R.layout.adapter_song, songs);
-        final AdapterPlaylistItem adapter = new AdapterPlaylistItem(this, R.layout.adapter_song, songs);
+        adapter = new AdapterPlaylistItem(this, R.layout.adapter_song, songs);
         list_v.setAdapter(adapter);
         list_v.setOnItemClickListener(new OnItemClickListener() {
 
@@ -171,6 +176,8 @@ public class ActivityMain extends Activity{
                 Song s = songs.get(position);
                 appInst.currentlyPlayingIndex = position;
                 adapter.notifyDataSetChanged();
+//                list_v.setSelection(appInst.currentlyPlayingIndex);
+                list_v.setSelection(getCentralPosition());
 
 //                view.setBackgroundColor(R.drawable.bg_color);
 
@@ -202,28 +209,70 @@ public class ActivityMain extends Activity{
         	
 		});
 
+        list_v.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                _firstVisibleItem = firstVisibleItem;
+                _visibleItemCount = visibleItemCount;
+            }
+        });
+
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                playPause(view);
+                playPause();
             }
         });
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                forward(view);
+                forward();
             }
         });
 
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                rewind(view);
+                rewind();
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean isTouched) {
+//                Log.i(appInst.LOG_TAG, "seekbar: i=" + progress+"; b="+isTouched);
+                if(player != null && isTouched) {
+                    player.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 	}
-    public void playPause(View view){
+
+    private int getCentralPosition(){
+        int center = (int) Math.ceil(_visibleItemCount/2d) - 1;
+        int appliedCenter = appInst.currentlyPlayingIndex - center;
+        Log.i(appInst.LOG_TAG, "center: "+center+"; appliedCenter:" + appliedCenter);
+        return (appliedCenter < 0) ? 0 : appliedCenter;
+//        return appliedCenter;
+    }
+
+    public void playPause(){
         if(player != null){
             if(player.isPlaying()){
                 player.pause();
@@ -235,6 +284,9 @@ public class ActivityMain extends Activity{
         }else if(songs.size() > 0){
             playSong(songs.get(0));
             appInst.currentlyPlayingIndex = 0;
+            adapter.notifyDataSetChanged();
+//            list_v.setSelection(appInst.currentlyPlayingIndex);
+            list_v.setSelection(getCentralPosition());
         }
 //        Toast.makeText(appInst, "No songs",Toast.LENGTH_LONG).show();
     }
@@ -246,6 +298,15 @@ public class ActivityMain extends Activity{
         }
         player = MediaPlayer.create(ActivityMain.this, Uri.parse(song.getData()));
         player.start();
+
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                forward();
+                Log.i(appInst.LOG_TAG, "onCompletion");
+            }
+        });
+
         playButton.setImageResource(R.drawable.ic_action_pause);
         songName.setText(song.getData());
 
@@ -282,31 +343,37 @@ public class ActivityMain extends Activity{
 //        Log.i(appInst.LOG_TAG, "after clear view focus:" + ll.getFocusedChild());
     }
 
-    public void pause(View view){
+    public void pause(){
 //        Toast.makeText(appInst, "Pausing song",Toast.LENGTH_LONG).show();
         player.pause();
 //        songName.setSelected(false);
 //        playButton.setEnabled(true);
     }
 
-    public void forward(View view){
+    public void forward(){
         if(songs.size() > 0){
             if(appInst.currentlyPlayingIndex == songs.size() - 1){
                 appInst.currentlyPlayingIndex = 0;
             }else{
                 appInst.currentlyPlayingIndex++;
             }
+            adapter.notifyDataSetChanged();
+//            list_v.setSelection(appInst.currentlyPlayingIndex);
+            list_v.setSelection(getCentralPosition());
             playSong(songs.get(appInst.currentlyPlayingIndex));
         }
     }
 
-    public void rewind(View view){
+    public void rewind(){
         if(songs.size() > 0){
             if(appInst.currentlyPlayingIndex == 0){
                 appInst.currentlyPlayingIndex = songs.size()-1;
             }else{
                 appInst.currentlyPlayingIndex--;
             }
+            adapter.notifyDataSetChanged();
+//            list_v.setSelection(appInst.currentlyPlayingIndex);
+            list_v.setSelection(getCentralPosition());
             playSong(songs.get(appInst.currentlyPlayingIndex));
         }
     }
