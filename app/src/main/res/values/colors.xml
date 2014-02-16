@@ -1,0 +1,7 @@
+<resources>
+
+    <color name="list_adapter_def_color">#80ffffff</color>
+    <color name="list_adapter_active_color">#80a0a0a0</color>
+
+
+</resources>

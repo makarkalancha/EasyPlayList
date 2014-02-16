@@ -10,6 +10,7 @@ public class App extends Application{
 //	public static final String MUSIC_PATH = "/storage/emulated/0/Music/!_test";
 	public static final String MUSIC_PATH = Environment.getExternalStorageDirectory().toString()+"/Music/!_test";
     public static final String LOG_TAG = "LOG_EP>>>";
+    public static int currentlyPlayingIndex = -1;
 
     public App getInstance(){
 		return singleton;
