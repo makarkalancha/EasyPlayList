@@ -19,12 +19,10 @@ public class Player {
     private MediaPlayer _mediaPlayer;
     private double _startTime = 0;
     private double _endTime = 0;
-//    private Handler handler = new Handler();
     private List<Song> _songList = new ArrayList<Song>();
     private App _appInst;
     private int _currentlyPlayingIndex = -1;
-    //    private long forwardTime = TimeUnit.SECONDS.toMillis(5);
-//    private long backwardTime = TimeUnit.SECONDS.toMillis(5);
+    private MediaPlayer.OnCompletionListener _onCompletionListener = new DefaultOnCompletionListener();
 
     private Player() {
         _mediaPlayer = new MediaPlayer();
@@ -41,11 +39,7 @@ public class Player {
     }
 
     public int getCurrentPosition(){
-//        int result = 0;
-//        if(_mediaPlayer != null) {
-            return _mediaPlayer.getCurrentPosition();
-//        }
-//        return result;
+        return _mediaPlayer.getCurrentPosition();
     }
 
     public Song getCurrentSong() {
@@ -61,13 +55,8 @@ public class Player {
     }
 
     public int getDuration(){
-//        int result = 0;
-//        if(_mediaPlayer != null) {
-            return _mediaPlayer.getDuration();
-//        }
-//        return result;
+        return _mediaPlayer.getDuration();
     }
-
 
     public void playSong(final Context ctx, Song song){
         if(_mediaPlayer != null){
@@ -75,14 +64,7 @@ public class Player {
         }
         _mediaPlayer = MediaPlayer.create(ctx, Uri.parse(song.getData()));
         _mediaPlayer.start();
-
-//        _mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//            @Override
-//            public void onCompletion(MediaPlayer mediaPlayer) {
-//                forward(ctx);
-//                Log.i(_appInst.LOG_TAG, "onCompletion Player.playSong");
-//            }
-//        });
+        _mediaPlayer.setOnCompletionListener(_onCompletionListener);
     }
 
     public void pause(){
@@ -97,9 +79,6 @@ public class Player {
             }else{
                 _currentlyPlayingIndex++;
             }
-//            adapter.notifyDataSetChanged();
-////            list_v.setSelection(_appInst._currentlyPlayingIndex);
-//            list_v.setSelection(getCentralPosition());
             playSong(ctx, _songList.get(_currentlyPlayingIndex));
         }
     }
@@ -112,9 +91,6 @@ public class Player {
             }else{
                 _currentlyPlayingIndex--;
             }
-//            adapter.notifyDataSetChanged();
-////            list_v.setSelection(_appInst._currentlyPlayingIndex);
-//            list_v.setSelection(getCentralPosition());
             playSong(ctx, _songList.get(_currentlyPlayingIndex));
         }
     }
@@ -143,7 +119,16 @@ public class Player {
         _songList = songs;
     }
 
-    public MediaPlayer getMediaPlayer() {
-        return _mediaPlayer;
+    public Player withOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener){
+        _onCompletionListener = onCompletionListener;
+        return this;
+    }
+
+    class DefaultOnCompletionListener implements MediaPlayer.OnCompletionListener{
+        @Override
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            Log.i(App.LOG_TAG, "DefaultOnCompletionListener Player.play");
+            forward(null);
+        }
     }
 }

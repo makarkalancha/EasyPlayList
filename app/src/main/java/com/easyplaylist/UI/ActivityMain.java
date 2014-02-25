@@ -30,7 +30,6 @@ import com.easyplaylist.utils.StringUtils;
 public class ActivityMain extends Activity{
     private Player _player;
 
-//	private TextView text;
 	private ListView list_v;
     private SeekBar seekBar;
     private ImageButton playButton;
@@ -50,15 +49,10 @@ public class ActivityMain extends Activity{
 
     private App appInst;
 
-//    private MediaPlayer player;
     private double startTime = 0;
     private double endTime = 0;
     private Handler _handler = new Handler();
     private static final int SEEK_STEP = 1000;
-
-    private int getStartTime(){
-        return _player.getCurrentPosition();
-    }
 
     private Runnable UpdateSongTime = new Runnable() {
         @Override
@@ -137,7 +131,7 @@ public class ActivityMain extends Activity{
                 _player.setCurrentlyPlayingIndex(position);
                 adapter.notifyDataSetChanged();
                 list_v.setSelection(getCentralPosition());
-                playSong(s);
+                play(s);
 			}
         	
 		});
@@ -220,52 +214,40 @@ public class ActivityMain extends Activity{
                 playButton.setImageResource(R.drawable.ic_action_pause);
             }
         }else if(songs.size() > 0){
-            playSong(songs.get(0));
+            play(songs.get(0));
             _player.setCurrentlyPlayingIndex(0);
-            adapter.notifyDataSetChanged();
-            list_v.setSelection(getCentralPosition());
+            updateUI();
         }
     }
-////TODO
-    ////if set seekbar to end and next song is shorter
-    ////then seekbar max duration is incorrect
+
     public void updateUI(){
         songName.setText(_player.getCurrentSong().getData());
         adapter.notifyDataSetChanged();
-//            list_v.setSelection(appInst.currentlyPlayingIndex);
         list_v.setSelection(getCentralPosition());
+        startTime = _player.getCurrentPosition();
         endTime = _player.getDuration();
         if(oneTimeOnly == 0){
+            Log.i(appInst.LOG_TAG, "updateUI seekbar: duration=" + endTime);
             seekBar.setMax((int)endTime);
         }
+        startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
         endTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(endTime)));
+        playButton.setImageResource(R.drawable.ic_action_pause);
+//        Log.i(App.LOG_TAG, "start:" + startTime + "; end:" + endTime);
+        seekBar.setProgress((int) startTime);
+        _handler.postDelayed(UpdateSongTime, SEEK_STEP);
     }
 
-    public void playSong(Song song){
-        _player.playSong(ActivityMain.this, song);
-
-        _player.getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    public void play(Song song){
+        _player.withOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 _player.forward(ActivityMain.this);
                 updateUI();
-                Log.i(App.LOG_TAG, "onCompletion Player.playSong");
+                Log.i(App.LOG_TAG, "onCompletion Player.play");
             }
         });
-
-        playButton.setImageResource(R.drawable.ic_action_pause);
-        songName.setText(song.getData());
-
-        startTime = _player.getCurrentPosition();
-        endTime = _player.getDuration();
-        if(oneTimeOnly == 0){
-            seekBar.setMax((int)endTime);
-        }
-//        Log.i(App.LOG_TAG, "start:" + startTime + "; end:" + endTime);
-        startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
-        endTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(endTime)));
-        seekBar.setProgress((int) startTime);
-        _handler.postDelayed(UpdateSongTime, SEEK_STEP);
+        _player.playSong(ActivityMain.this, song);
     }
 
     @Override
@@ -276,6 +258,28 @@ public class ActivityMain extends Activity{
         _player.release();
     }
 
-    //TODO
-    //other lifecycle methods
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }
