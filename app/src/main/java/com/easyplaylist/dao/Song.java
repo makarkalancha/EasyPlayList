@@ -1,4 +1,4 @@
-package com.easyplaylist.data;
+package com.easyplaylist.dao;
 
 import java.io.FileDescriptor;
 

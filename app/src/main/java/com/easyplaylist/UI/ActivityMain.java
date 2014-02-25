@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
@@ -21,10 +26,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.easyplaylist.data.Song;
+import com.easyplaylist.broadcastreceiver.HeadphoneUplugged;
+import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.Player;
 import com.easyplaylist.engine.R;
+import com.easyplaylist.interfaces.IUpdateUI;
+import com.easyplaylist.listeners.IncomingCallListener;
 import com.easyplaylist.utils.StringUtils;
 
 public class ActivityMain extends Activity{
@@ -46,6 +54,10 @@ public class ActivityMain extends Activity{
     private AdapterPlaylistItem adapter;
     private int _firstVisibleItem = -1;
     private int _visibleItemCount = -1;
+
+    private HeadphoneUplugged _headphoneUpluggedBroadcast = new HeadphoneUplugged(new ImplUpdateUI());
+    private TelephonyManager _tm;
+    private IncomingCallListener incomingCallListener = new IncomingCallListener(new ImplUpdateUI());
 
     private App appInst;
 
@@ -81,6 +93,8 @@ public class ActivityMain extends Activity{
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.previous);
         songName = (TextView) findViewById(R.id.song_name);
+        _tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        _tm.listen(incomingCallListener, PhoneStateListener.LISTEN_CALL_STATE);
         songName.setSelected(true);
 
         startTimeField = (TextView) findViewById(R.id.start_time);
@@ -252,10 +266,12 @@ public class ActivityMain extends Activity{
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         _handler.removeCallbacks(UpdateSongTime);
         _player.reset();
         _player.release();
+        unregisterReceiver(_headphoneUpluggedBroadcast);
+        _tm.listen(incomingCallListener, PhoneStateListener.LISTEN_NONE);
+        super.onDestroy();
     }
 
     @Override
@@ -270,6 +286,8 @@ public class ActivityMain extends Activity{
 
     @Override
     protected void onResume() {
+        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(_headphoneUpluggedBroadcast, filter);
         super.onResume();
     }
 
@@ -281,5 +299,12 @@ public class ActivityMain extends Activity{
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    class ImplUpdateUI implements IUpdateUI{
+        @Override
+        public void update() {
+            playButton.setImageResource(R.drawable.ic_action_play);
+        }
     }
 }

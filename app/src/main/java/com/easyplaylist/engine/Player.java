@@ -5,7 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 
-import com.easyplaylist.data.Song;
+import com.easyplaylist.dao.Song;
 
 import java.util.ArrayList;
 import java.util.List;

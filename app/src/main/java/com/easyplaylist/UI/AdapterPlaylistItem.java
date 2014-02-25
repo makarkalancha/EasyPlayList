@@ -1,22 +1,15 @@
 package com.easyplaylist.UI;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.easyplaylist.data.Song;
+import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
