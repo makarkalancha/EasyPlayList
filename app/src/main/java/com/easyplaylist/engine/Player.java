@@ -38,6 +38,10 @@ public class Player {
         private static Player player = new Player();
     }
 
+    public MediaPlayer getMediaPlayer() {
+        return _mediaPlayer;
+    }
+
     public int getCurrentPosition(){
         return _mediaPlayer.getCurrentPosition();
     }
@@ -125,6 +129,10 @@ public class Player {
 
     public void start(){
         _mediaPlayer.start();
+    }
+
+    public void stop() {
+        _mediaPlayer.stop();
     }
 
     public void reset(){
