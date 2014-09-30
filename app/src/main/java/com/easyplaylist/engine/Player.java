@@ -54,6 +54,26 @@ public class Player {
         _currentlyPlayingIndex = currentlyPlayingIndex;
     }
 
+    public void setOnPreparedListener(MediaPlayer.OnPreparedListener listener){
+        _mediaPlayer.setOnPreparedListener(listener);
+    }
+
+    public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener){
+        _mediaPlayer.setOnCompletionListener(listener);
+    }
+
+    public void setOnErrorListener(MediaPlayer.OnErrorListener listener){
+        _mediaPlayer.setOnErrorListener(listener);
+    }
+
+    public void setWakeMode(Context context, int mode){
+        _mediaPlayer.setWakeMode(context,mode);
+    }
+
+    public void setAudioStreamType(int streamType){
+        _mediaPlayer.setAudioStreamType(streamType);
+    }
+
     public int getDuration(){
         return _mediaPlayer.getDuration();
     }
