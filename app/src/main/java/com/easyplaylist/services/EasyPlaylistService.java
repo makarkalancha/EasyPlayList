@@ -12,6 +12,7 @@ import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by makar on 29/09/2014.
@@ -22,8 +23,9 @@ public class EasyPlaylistService extends Service
         MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener
 {
     private Player _player;
-    private ArrayList<Song> _songs;
+    private List<Song> _songs;
     private int _songPositionNum;
+    private final IBinder _serviceBind = new EasyPlaylistBinder();
 
     @Override
     public void onCreate() {
@@ -41,13 +43,30 @@ public class EasyPlaylistService extends Service
         _player.setOnErrorListener(this);
     }
 
-    public void setList(ArrayList<Song> songs) {
+    public void setList(List<Song> songs) {
         _songs = songs;
+    }
+
+    public void setSongPositionNum(int songIndex) {
+        _songPositionNum = songIndex;
+    }
+
+    public void playSong(){
+        _player.reset();
+        Song songToPlay = _songs.get(_songPositionNum);
+        _player.playSong(getApplicationContext(), songToPlay);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return _serviceBind;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        _player.stop();
+        _player.release();
+        return false;
     }
 
     @Override
@@ -62,11 +81,12 @@ public class EasyPlaylistService extends Service
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-
+        mp = _player.getMediaPlayer();
+        mp.start();
     }
 
     public class EasyPlaylistBinder extends Binder{
-        EasyPlaylistService getService() {
+        public EasyPlaylistService getService() {
             return EasyPlaylistService.this;
         }
 
