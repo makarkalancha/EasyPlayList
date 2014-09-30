@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -33,6 +36,8 @@ import com.easyplaylist.engine.Player;
 import com.easyplaylist.engine.R;
 import com.easyplaylist.interfaces.IUpdateUI;
 import com.easyplaylist.listeners.IncomingCallListener;
+import com.easyplaylist.services.EasyPlaylistService;
+import com.easyplaylist.services.EasyPlaylistService.EasyPlaylistBinder;
 import com.easyplaylist.utils.StringUtils;
 
 public class ActivityMain extends Activity{
@@ -65,6 +70,26 @@ public class ActivityMain extends Activity{
     private double endTime = 0;
     private Handler _handler = new Handler();
     private static final int SEEK_STEP = 1000;
+
+    private EasyPlaylistService _service;
+    private Intent playIntent;
+    private boolean musicBound = false;
+    //connect to the service
+    private ServiceConnection easyplaylistConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            EasyPlaylistBinder binder = (EasyPlaylistBinder) service;
+            //get service
+            _service = binder.getService();
+            _service.setList(songs);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
 
     private Runnable UpdateSongTime = new Runnable() {
         @Override
@@ -277,6 +302,11 @@ public class ActivityMain extends Activity{
     @Override
     protected void onStart() {
         super.onStart();
+        if(playIntent == null) {
+            playIntent = new Intent(this, EasyPlaylistService.class);
+            bindService(playIntent, easyplaylistConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
     }
 
     @Override
