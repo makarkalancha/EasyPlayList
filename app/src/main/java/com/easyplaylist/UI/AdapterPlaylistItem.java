@@ -80,7 +80,7 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
 //      String title = (String) mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         Bitmap bitmap = s.getAlbumart(_context);
         if(bitmap == null) {
-            bitmap = BitmapFactory.decodeResource(_context.getResources(),R.drawable.ic_launcher);
+            bitmap = BitmapFactory.decodeResource(_context.getResources(),R.drawable.logo);
         }
         holder.image.setImageBitmap(bitmap);
 

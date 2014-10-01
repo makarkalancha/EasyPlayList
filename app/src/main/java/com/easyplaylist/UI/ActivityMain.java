@@ -41,7 +41,7 @@ import com.easyplaylist.services.EasyPlaylistService.EasyPlaylistBinder;
 import com.easyplaylist.utils.StringUtils;
 
 public class ActivityMain extends Activity{
-//    private Player _player;
+    private Player _player;
 
 	private ListView list_v;
     private SeekBar seekBar;
@@ -60,7 +60,8 @@ public class ActivityMain extends Activity{
     private int _firstVisibleItem = -1;
     private int _visibleItemCount = -1;
 
-    private HeadphoneUplugged _headphoneUpluggedBroadcast = new HeadphoneUplugged(new ImplUpdateUI());
+//    private IntentFilter headPhoneIntentFilter;
+//    private HeadphoneUplugged _headphoneUpluggedBroadcast = new HeadphoneUplugged(new ImplUpdateUI());
     private TelephonyManager _tm;
     private IncomingCallListener incomingCallListener = new IncomingCallListener(new ImplUpdateUI());
 
@@ -82,11 +83,13 @@ public class ActivityMain extends Activity{
             //get service
             _service = binder.getService();
             _service.setList(songs);
+            Log.d(App.LOG_TAG, "onServiceConnected");
             musicBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(App.LOG_TAG, "onServiceDisconnected");
             musicBound = false;
         }
     };
@@ -105,8 +108,12 @@ public class ActivityMain extends Activity{
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        appInst = (App) getApplication();
-        _player = appInst._player;
+        Log.i(App.LOG_TAG,"onCreate");
+
+        if(_player == null) {
+            appInst = (App) getApplication();
+            _player = appInst._player;
+        }
 
         setContentView(R.layout.activity_main);
 
@@ -287,48 +294,64 @@ public class ActivityMain extends Activity{
             }
         });
         _player.playSong(ActivityMain.this, song);
+//        _service.setCurrentSong(song);
     }
 
     @Override
     protected void onDestroy() {
+        Log.i(App.LOG_TAG,"onDestroy");
         _handler.removeCallbacks(UpdateSongTime);
         _player.reset();
         _player.release();
-        unregisterReceiver(_headphoneUpluggedBroadcast);
+//        unregisterReceiver(_headphoneUpluggedBroadcast);
         _tm.listen(incomingCallListener, PhoneStateListener.LISTEN_NONE);
+        stopService(playIntent);
+        unbindService(easyplaylistConnection);
+        _service = null;
         super.onDestroy();
     }
 
     @Override
     protected void onStart() {
+        Log.i(App.LOG_TAG,"onStart");
         super.onStart();
         if(playIntent == null) {
+            Log.i(App.LOG_TAG,"onStart: playIntent == null");
             playIntent = new Intent(this, EasyPlaylistService.class);
             bindService(playIntent, easyplaylistConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
         }
+//        if (headPhoneIntentFilter == null){
+//            Log.i(App.LOG_TAG,"onStart: headPhoneIntentFilter == null");
+//            headPhoneIntentFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+//            registerReceiver(_headphoneUpluggedBroadcast, headPhoneIntentFilter);
+//        }
     }
 
     @Override
     protected void onRestart() {
+        Log.i(App.LOG_TAG,"onRestart");
         super.onRestart();
     }
 
     @Override
     protected void onResume() {
-        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-        registerReceiver(_headphoneUpluggedBroadcast, filter);
+        Log.i(App.LOG_TAG,"onResume");
         super.onResume();
     }
 
     @Override
     protected void onPause() {
+        Log.i(App.LOG_TAG,"onPause");
         super.onPause();
+
     }
 
     @Override
     protected void onStop() {
+        Log.i(App.LOG_TAG,"onStop");
         super.onStop();
+
     }
 
     class ImplUpdateUI implements IUpdateUI{

@@ -1,19 +1,25 @@
 package com.easyplaylist.engine;
 
 import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 
 import com.easyplaylist.dao.Song;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Makar on 2/16/14.
  */
-public class Player {
+public class Player
+{
+    private static int countClass = 0;
+
     private static Player playerInstance;
 
     private MediaPlayer _mediaPlayer;
@@ -23,11 +29,12 @@ public class Player {
     private App _appInst;
     private int _currentlyPlayingIndex = -1;
     private MediaPlayer.OnCompletionListener _onCompletionListener = new DefaultOnCompletionListener();
+    private MediaPlayer.OnPreparedListener _onPreparedListener = new DefaultOnPreparedListener();
 
     private Player() {
         _mediaPlayer = new MediaPlayer();
         _appInst = new App();
-        Log.i(_appInst.LOG_TAG, "Player.default constructor");
+        Log.i(_appInst.LOG_TAG, "Player.default constructor:"+(++countClass));
     }
 
     public static Player getInstance() {
@@ -86,9 +93,26 @@ public class Player {
         if(_mediaPlayer != null){
             _mediaPlayer.reset();
         }
-        _mediaPlayer = MediaPlayer.create(ctx, Uri.parse(song.getData()));
-        _mediaPlayer.start();
+        //// audio that's available as a local raw resource
+//        _mediaPlayer = MediaPlayer.create(ctx, Uri.parse(song.getData()));
+        ////URI available locally in the system (that you obtained through a Content Resolver
+        createAndPrepareMediaPlayerObject(ctx, song);
+//        start(); //start in setOnPreparedListener
+
+    }
+
+    public void createAndPrepareMediaPlayerObject(final Context ctx, Song song){
+        _mediaPlayer = new MediaPlayer();
+        setAudioStreamType(AudioManager.STREAM_MUSIC);
         _mediaPlayer.setOnCompletionListener(_onCompletionListener);
+        _mediaPlayer.setOnPreparedListener(_onPreparedListener);
+        try {
+            _mediaPlayer.setDataSource(ctx, Uri.parse(song.getData()));
+            _mediaPlayer.prepare();
+//            _mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            Log.e(App.LOG_TAG, "createAndPrepareMediaPlayerObject exception", e);
+        }
     }
 
     public void pause(){
@@ -152,11 +176,23 @@ public class Player {
         return this;
     }
 
+    public Player withOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener){
+        _onPreparedListener = onPreparedListener;
+        return this;
+    }
+
     class DefaultOnCompletionListener implements MediaPlayer.OnCompletionListener{
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
             Log.i(App.LOG_TAG, "DefaultOnCompletionListener Player.play");
             forward(null);
+        }
+    }
+
+    class DefaultOnPreparedListener implements MediaPlayer.OnPreparedListener{
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            start();
         }
     }
 }
