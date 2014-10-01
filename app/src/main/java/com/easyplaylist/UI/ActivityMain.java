@@ -41,7 +41,7 @@ import com.easyplaylist.services.EasyPlaylistService.EasyPlaylistBinder;
 import com.easyplaylist.utils.StringUtils;
 
 public class ActivityMain extends Activity{
-    private Player _player;
+//    private Player _player;
 
 	private ListView list_v;
     private SeekBar seekBar;
