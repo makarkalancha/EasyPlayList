@@ -13,7 +13,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" 
         android:name="App">
@@ -28,7 +28,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 		</activity>
-        <service android:name="com.easyplaylist.services.EasyPlaylistService" />
+        <service
+            android:name="com.easyplaylist.services.EasyPlaylistService"
+            android:icon="@drawable/logo"
+            />
 
     </application>
 
