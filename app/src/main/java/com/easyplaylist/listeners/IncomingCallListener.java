@@ -19,12 +19,13 @@ public class IncomingCallListener extends PhoneStateListener {
     }
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
-        Player player = App._player;
-        switch (state) {
-            case TelephonyManager.CALL_STATE_RINGING:
-                Log.i(App.LOG_TAG, "Incoming call");
-                player.pause();
-                break;
-        }
+//        Player player = App._player;
+//        switch (state) {
+//            case TelephonyManager.CALL_STATE_RINGING:
+//                Log.i(App.LOG_TAG, "Incoming call");
+//                player.pause();
+//                break;
+//        }
+        Log.i(App.LOG_TAG, "IncomingCallListener>>>DO NOTHING<<<");
     }
 }

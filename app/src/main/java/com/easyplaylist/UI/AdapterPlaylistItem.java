@@ -6,10 +6,12 @@ import java.util.List;
 import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
+import com.easyplaylist.services.PlayerService;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,7 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
 //	private Map<String, Integer> mIdMap = new HashMap<String, Integer>();
 	private List<Song> _songs = new ArrayList<Song>();
     private final Activity _context;
-//    private int current_position = -1;
+    private int _currentPosition = -1;
 //    private App appInst;
 
     public AdapterPlaylistItem(Activity context, int textViewResourceId, List<Song> songs) {
@@ -65,7 +67,9 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
         Song s = _songs.get(position);
 
 //        Log.i(App.LOG_TAG+"adapter3", "cur_pos: " + App.currentlyPlayingIndex+"; pos: "+position+"; equal: "+(App.currentlyPlayingIndex == position));
-        if(App._player.getCurrentlyPlayingIndex() == position){
+//        if(App._player.getCurrentlyPlayingIndex() == position){
+//        Log.i(App.LOG_TAG + "adapter3", "is null: " + (playerService == null));
+        if(_currentPosition == position){
             rowView.setBackgroundResource(R.color.list_adapter_active_color);
 //            Log.i(App.LOG_TAG+"adapter3", "cur_pos: " + App.currentlyPlayingIndex+"; pos: "+position+"; equal: "+(App.currentlyPlayingIndex == position));
         }else{
@@ -80,7 +84,7 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
 //      String title = (String) mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         Bitmap bitmap = s.getAlbumart(_context);
         if(bitmap == null) {
-            bitmap = BitmapFactory.decodeResource(_context.getResources(),R.drawable.logo);
+            bitmap = BitmapFactory.decodeResource(_context.getResources(),R.drawable.no_image);
         }
         holder.image.setImageBitmap(bitmap);
 
@@ -102,6 +106,11 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
 
         return rowView;
     }
+
+    public void setCurrentPosition(int currentPosition) {
+        this._currentPosition = currentPosition;
+    }
+
     
     static class ViewHolder {
     	public TextView text1;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -38,10 +40,11 @@ import com.easyplaylist.interfaces.IUpdateUI;
 import com.easyplaylist.listeners.IncomingCallListener;
 import com.easyplaylist.services.EasyPlaylistService;
 import com.easyplaylist.services.EasyPlaylistService.EasyPlaylistBinder;
+import com.easyplaylist.services.PlayerService;
 import com.easyplaylist.utils.StringUtils;
 
 public class ActivityMain extends Activity{
-    private Player _player;
+//    private Player _player;
 
 	private ListView list_v;
     private SeekBar seekBar;
@@ -60,29 +63,93 @@ public class ActivityMain extends Activity{
     private int _firstVisibleItem = -1;
     private int _visibleItemCount = -1;
 
-//    private IntentFilter headPhoneIntentFilter;
+    private IntentFilter headPhoneIntentFilter;
 //    private HeadphoneUplugged _headphoneUpluggedBroadcast = new HeadphoneUplugged(new ImplUpdateUI());
-    private TelephonyManager _tm;
-    private IncomingCallListener incomingCallListener = new IncomingCallListener(new ImplUpdateUI());
+    private BroadcastReceiver _headphoneUpluggedBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && _playerService != null) {
+                int state = intent.getIntExtra("state", -1);
+                switch (state) {
+                    case 0:
+                        Log.i(App.LOG_TAG, "Headset is unplugged and state 0");
+                        _playerService.pause();
+                        playButton.setImageResource(R.drawable.ic_action_play);
+                        break;
+                    case 1:
+                        Log.i(App.LOG_TAG, "Headset is plugged and state 1");
+                        _playerService.pause();
+                        playButton.setImageResource(R.drawable.ic_action_play);
+                        break;
+                    default:
+                        Log.i(App.LOG_TAG, "state default " + state);
+                        break;
+                }
+            }
+        }
+    };
 
-    private App appInst;
+    private TelephonyManager _tm;
+//    private IncomingCallListener incomingCallListener = new IncomingCallListener(new ImplUpdateUI());
+    private PhoneStateListener incomingCallListener = new PhoneStateListener(){
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    Log.i(App.LOG_TAG, "Incoming call");
+                    _playerService.pause();
+                    break;
+            }
+        }
+    };
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUI();
+            Log.i(App.LOG_TAG, "mReceiver updateUI");
+        }
+    };
+
+//    private App appInst;
 
     private double startTime = 0;
     private double endTime = 0;
     private Handler _handler = new Handler();
     private static final int SEEK_STEP = 1000;
 
-    private EasyPlaylistService _service;
+//    private EasyPlaylistService _service;
+//    private Intent playIntent;
+//    private boolean musicBound = false;
+//    //connect to the service
+//    private ServiceConnection easyplaylistConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            EasyPlaylistBinder binder = (EasyPlaylistBinder) service;
+//            //get service
+//            _service = binder.getService();
+//            _service.setList(songs);
+//            Log.d(App.LOG_TAG, "onServiceConnected");
+//            musicBound = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            Log.d(App.LOG_TAG, "onServiceDisconnected");
+//            musicBound = false;
+//        }
+//    };
+    private PlayerService _playerService;
     private Intent playIntent;
     private boolean musicBound = false;
     //connect to the service
-    private ServiceConnection easyplaylistConnection = new ServiceConnection() {
+    private ServiceConnection playerConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            EasyPlaylistBinder binder = (EasyPlaylistBinder) service;
+            PlayerService.PlayerServiceBinder binder = (PlayerService.PlayerServiceBinder) service;
             //get service
-            _service = binder.getService();
-            _service.setList(songs);
+            _playerService = binder.getService();
+            _playerService.setSongList(songs);
             Log.d(App.LOG_TAG, "onServiceConnected");
             musicBound = true;
         }
@@ -97,7 +164,8 @@ public class ActivityMain extends Activity{
     private Runnable UpdateSongTime = new Runnable() {
         @Override
         public void run() {
-            startTime = _player.getCurrentPosition();
+//            startTime = _player.getCurrentPosition();
+            startTime = _playerService.getCurrentPosition();
             startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
             seekBar.setProgress((int) startTime);
             _handler.postDelayed(this, SEEK_STEP);
@@ -110,15 +178,15 @@ public class ActivityMain extends Activity{
 
         Log.i(App.LOG_TAG,"onCreate");
 
-        if(_player == null) {
-            appInst = (App) getApplication();
-            _player = appInst._player;
-        }
+//        if(_player == null) {
+//            appInst = (App) getApplication();
+//            _player = appInst._player;
+//        }
 
         setContentView(R.layout.activity_main);
 
         ll = (LinearLayout) findViewById(R.id.linear_main);
-        
+
         list_v = (ListView) findViewById(R.id.list_v);
         seekBar = (SeekBar) findViewById(R.id.seek_bar);
         playButton = (ImageButton) findViewById(R.id.play_pause);
@@ -140,16 +208,16 @@ public class ActivityMain extends Activity{
         		MediaStore.Audio.Media.DISPLAY_NAME,
         		MediaStore.Audio.Media.DURATION,
         		MediaStore.Audio.Media.ALBUM_ID
-        		
+
         };
         String where = MediaStore.Audio.Media.MIME_TYPE  + "= 'audio/mpeg'" + " AND "+
         		MediaStore.Audio.Media.DATA +" LIKE ?";
-        String[] whereArgs = new String[] {appInst.MUSIC_PATH+"%"};
-        Cursor curs = appInst.getContentResolver().query(
+        String[] whereArgs = new String[] {App.MUSIC_PATH+"%"};
+        Cursor curs = getApplication().getContentResolver().query(
         		MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 proj,
                 where,
-                whereArgs, 
+                whereArgs,
                 MediaStore.Audio.Media.DATA);
 
         if (curs == null) {
@@ -160,13 +228,14 @@ public class ActivityMain extends Activity{
         	do {
         		Song s = new Song(curs.getLong(0),curs.getString(1),curs.getString(2),curs.getString(3),curs.getLong(4));
         		songs.add(s);
-        		Log.i(appInst.LOG_TAG+"song"+s.getId(),"data:"+s.getData()+";name:"+s.getName()+";duration:"+s.getDuration());
+        		Log.i(App.LOG_TAG+"song"+s.getId(),"data:"+s.getData()+";name:"+s.getName()+";duration:"+s.getDuration());
         	}while(curs.moveToNext());
         }
 
-        _player.setSongsList(songs);
-        
-        Log.i(appInst.LOG_TAG+"info","size:"+songs.size());
+//        _player.setSongsList(songs);
+
+
+        Log.i(App.LOG_TAG+"info","size:"+songs.size());
         adapter = new AdapterPlaylistItem(this, R.layout.adapter_song, songs);
         list_v.setAdapter(adapter);
         list_v.setOnItemClickListener(new OnItemClickListener() {
@@ -174,12 +243,15 @@ public class ActivityMain extends Activity{
 			@Override
 			public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
                 Song s = songs.get(position);
-                _player.setCurrentlyPlayingIndex(position);
+//                _player.setCurrentlyPlayingIndex(position);
+                _playerService.setCurrentlyPlayingIndex(position);
+//                view.setSelected(true);
+                adapter.setCurrentPosition(position);
                 adapter.notifyDataSetChanged();
                 list_v.setSelection(getCentralPosition());
                 play(s);
 			}
-        	
+
 		});
 
         list_v.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -205,7 +277,8 @@ public class ActivityMain extends Activity{
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                _player.forward(ActivityMain.this);
+//                _player.forward(ActivityMain.this);
+                _playerService.forward(ActivityMain.this);
                 updateUI();
             }
         });
@@ -213,7 +286,8 @@ public class ActivityMain extends Activity{
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                _player.rewind(ActivityMain.this);
+//                _player.rewind(ActivityMain.this);
+                _playerService.rewind(ActivityMain.this);
                 updateUI();
             }
         });
@@ -223,8 +297,10 @@ public class ActivityMain extends Activity{
             public void onProgressChanged(SeekBar seekBar, int progress, boolean isTouched) {
 //                Log.i(appInst.LOG_TAG, "seekbar: i=" + progress+"; b="+isTouched);
                 if(isTouched) {
-                    _player.seekTo(progress);
-                    startTime = _player.getCurrentPosition();
+//                    _player.seekTo(progress);
+//                    startTime = _player.getCurrentPosition();
+                    _playerService.seekTo(progress);
+                    startTime = _playerService.getCurrentPosition();
                     startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
                 }
             }
@@ -243,37 +319,61 @@ public class ActivityMain extends Activity{
 
     private int getCentralPosition(){
         int center = (int) Math.ceil(_visibleItemCount/2d) - 1;
-        int appliedCenter = _player.getCurrentlyPlayingIndex() - center;
-        Log.i(appInst.LOG_TAG, "center: "+center+"; appliedCenter:" + appliedCenter);
+//        int appliedCenter = _player.getCurrentlyPlayingIndex() - center;
+        int appliedCenter = _playerService.getCurrentlyPlayingIndex() - center;
+        Log.i(App.LOG_TAG, "center: "+center+"; appliedCenter:" + appliedCenter);
         return (appliedCenter < 0) ? 0 : appliedCenter;
     }
 
     public void playPause(){
-        if(_player.getCurrentlyPlayingIndex() > -1){
-            if(_player.isPlaying()){
-                _player.pause();
+//        if(_player.getCurrentlyPlayingIndex() > -1){
+//            if(_player.isPlaying()){
+//                _player.pause();
+//                _handler.removeCallbacks(UpdateSongTime);
+//                playButton.setImageResource(R.drawable.ic_action_play);
+//            }else{
+//                _player.start();
+//                _handler.postDelayed(UpdateSongTime, SEEK_STEP);
+//                playButton.setImageResource(R.drawable.ic_action_pause);
+//            }
+//        }else if(songs.size() > 0){
+//            play(songs.get(0));
+//            _player.setCurrentlyPlayingIndex(0);
+//            updateUI();
+//        }
+
+        if(_playerService.getCurrentlyPlayingIndex() > -1){
+            if(_playerService.isPlaying()){
+                _playerService.pause();
                 _handler.removeCallbacks(UpdateSongTime);
                 playButton.setImageResource(R.drawable.ic_action_play);
             }else{
-                _player.start();
+                _playerService.start();
                 _handler.postDelayed(UpdateSongTime, SEEK_STEP);
                 playButton.setImageResource(R.drawable.ic_action_pause);
             }
         }else if(songs.size() > 0){
             play(songs.get(0));
-            _player.setCurrentlyPlayingIndex(0);
+            _playerService.setCurrentlyPlayingIndex(0);
             updateUI();
         }
     }
 
     public void updateUI(){
-        songName.setText(_player.getCurrentSong().getData());
+//        songName.setText(_player.getCurrentSong().getData());
+//        adapter.notifyDataSetChanged();
+//        list_v.setSelection(getCentralPosition());
+//        startTime = _player.getCurrentPosition();
+//        endTime = _player.getDuration();
+
+        songName.setText(_playerService.getCurrentSong().getData());
+        adapter.setCurrentPosition(_playerService.getCurrentlyPlayingIndex());
         adapter.notifyDataSetChanged();
         list_v.setSelection(getCentralPosition());
-        startTime = _player.getCurrentPosition();
-        endTime = _player.getDuration();
+        startTime = _playerService.getCurrentPosition();
+        endTime = _playerService.getDuration();
         if(oneTimeOnly == 0){
-            Log.i(appInst.LOG_TAG, "updateUI seekbar: duration=" + endTime);
+            Log.i(App.LOG_TAG, "updateUI seekbar: duration=" + endTime);
             seekBar.setMax((int)endTime);
         }
         startTimeField.setText(StringUtils.convertMsToTimeFormat(Double.toString(startTime)));
@@ -285,15 +385,26 @@ public class ActivityMain extends Activity{
     }
 
     public void play(Song song){
-        _player.withOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                _player.forward(ActivityMain.this);
-                updateUI();
-                Log.i(App.LOG_TAG, "onCompletion Player.play");
-            }
-        });
-        _player.playSong(ActivityMain.this, song);
+//        _player.withOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mediaPlayer) {
+//                _player.forward(ActivityMain.this);
+//                updateUI();
+//                Log.i(App.LOG_TAG, "onCompletion Player.play");
+//            }
+//        });
+//        _player.playSong(ActivityMain.this, song);
+////        _service.setCurrentSong(song);
+
+//        _playerService.withOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mediaPlayer) {
+//                _playerService.forward(ActivityMain.this);
+//                updateUI();
+//                Log.i(App.LOG_TAG, "onCompletion Player.play");
+//            }
+//        });
+        _playerService.playSong(ActivityMain.this, song);
 //        _service.setCurrentSong(song);
     }
 
@@ -301,13 +412,15 @@ public class ActivityMain extends Activity{
     protected void onDestroy() {
         Log.i(App.LOG_TAG,"onDestroy");
         _handler.removeCallbacks(UpdateSongTime);
-        _player.reset();
-        _player.release();
-//        unregisterReceiver(_headphoneUpluggedBroadcast);
+//        _player.reset();
+//        _player.release();
+        unregisterReceiver(_headphoneUpluggedBroadcast);
         _tm.listen(incomingCallListener, PhoneStateListener.LISTEN_NONE);
         stopService(playIntent);
-        unbindService(easyplaylistConnection);
-        _service = null;
+//        unbindService(easyplaylistConnection);
+//        _service = null;
+        unbindService(playerConnection);
+        _playerService = null;
         super.onDestroy();
     }
 
@@ -317,15 +430,17 @@ public class ActivityMain extends Activity{
         super.onStart();
         if(playIntent == null) {
             Log.i(App.LOG_TAG,"onStart: playIntent == null");
-            playIntent = new Intent(this, EasyPlaylistService.class);
-            bindService(playIntent, easyplaylistConnection, Context.BIND_AUTO_CREATE);
+//            playIntent = new Intent(this, EasyPlaylistService.class);
+//            bindService(playIntent, easyplaylistConnection, Context.BIND_AUTO_CREATE);
+            playIntent = new Intent(this, PlayerService.class);
+            bindService(playIntent, playerConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
         }
-//        if (headPhoneIntentFilter == null){
-//            Log.i(App.LOG_TAG,"onStart: headPhoneIntentFilter == null");
-//            headPhoneIntentFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-//            registerReceiver(_headphoneUpluggedBroadcast, headPhoneIntentFilter);
-//        }
+        if (headPhoneIntentFilter == null){
+            Log.i(App.LOG_TAG,"onStart: headPhoneIntentFilter == null");
+            headPhoneIntentFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+            registerReceiver(_headphoneUpluggedBroadcast, headPhoneIntentFilter);
+        }
     }
 
     @Override
@@ -337,12 +452,14 @@ public class ActivityMain extends Activity{
     @Override
     protected void onResume() {
         Log.i(App.LOG_TAG,"onResume");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("updateUI"));
         super.onResume();
     }
 
     @Override
     protected void onPause() {
         Log.i(App.LOG_TAG,"onPause");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         super.onPause();
 
     }
@@ -354,10 +471,10 @@ public class ActivityMain extends Activity{
 
     }
 
-    class ImplUpdateUI implements IUpdateUI{
-        @Override
-        public void update() {
-            playButton.setImageResource(R.drawable.ic_action_play);
-        }
-    }
+//    class ImplUpdateUI implements IUpdateUI{
+//        @Override
+//        public void update() {
+//            playButton.setImageResource(R.drawable.ic_action_play);
+//        }
+//    }
 }

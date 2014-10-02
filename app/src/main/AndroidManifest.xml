@@ -28,10 +28,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 		</activity>
-        <service
+        <!--<service
             android:name="com.easyplaylist.services.EasyPlaylistService"
             android:icon="@drawable/logo"
+            />-->
+        <service
+            android:name="com.easyplaylist.services.PlayerService"
+            android:icon="@drawable/logo"
+            android:label="@string/service_name"
             />
+
+        <receiver android:name="com.easyplaylist.broadcastreceiver.HeadphoneUplugged"/>
+
 
     </application>
 
