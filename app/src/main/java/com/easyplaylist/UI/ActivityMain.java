@@ -207,8 +207,11 @@ public class ActivityMain extends Activity{
         		MediaStore.Audio.Media.DATA,
         		MediaStore.Audio.Media.DISPLAY_NAME,
         		MediaStore.Audio.Media.DURATION,
-        		MediaStore.Audio.Media.ALBUM_ID
-
+                MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.ARTIST_ID,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE
         };
         String where = MediaStore.Audio.Media.MIME_TYPE  + "= 'audio/mpeg'" + " AND "+
         		MediaStore.Audio.Media.DATA +" LIKE ?";
@@ -226,10 +229,20 @@ public class ActivityMain extends Activity{
         	Toast.makeText(getApplicationContext(), "no media on the device", Toast.LENGTH_LONG).show();
         } else {
         	do {
-        		Song s = new Song(curs.getLong(0),curs.getString(1),curs.getString(2),curs.getString(3),curs.getLong(4));
-        		songs.add(s);
-        		Log.i(App.LOG_TAG+"song"+s.getId(),"data:"+s.getData()+";name:"+s.getName()+";duration:"+s.getDuration());
-        	}while(curs.moveToNext());
+//        		Song s = new Song(curs.getLong(0),curs.getString(1),curs.getString(2),curs.getString(3),curs.getLong(4));
+                Song s = new Song();
+                s.setId(curs.getLong(0));
+                s.setData(curs.getString(1));
+                s.setName(curs.getString(2));
+                s.setDuration(curs.getString(3));
+                s.setAlbumId(curs.getLong(4));
+                s.setAlbum(curs.getString(5));
+                s.setArtistId(curs.getLong(6));
+                s.setArtist(curs.getString(7));
+                s.setTitle(curs.getString(8));
+                songs.add(s);
+                Log.i(App.LOG_TAG, s.toString());
+            }while(curs.moveToNext());
         }
 
 //        _player.setSongsList(songs);

@@ -51,19 +51,20 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public void onPrepared(MediaPlayer mp) {
         mp.start();
 
-        String currentSongTitle = getCurrentSong().getName();
+        Song currentSong = getCurrentSong();
+
         Intent notIntent = new Intent(this, ActivityMain.class);
         //Intent.FLAG_ACTIVITY_CLEAR_TOP
-        notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_NO_CREATE);
+        notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder builder = new Notification.Builder(this);
         builder
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.logo)
-                .setTicker(currentSongTitle)
+                .setTicker(currentSong.getArtist()+": "+currentSong.getTitle())
                 .setOngoing(true)
-                .setContentTitle("Playing")
-                .setContentText(currentSongTitle);
+                .setContentTitle(currentSong.getTitle())
+                .setContentText(currentSong.getArtist());
         Notification notification = builder.build();
 //                notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
         startForeground(NOTIFY_ID, notification);
