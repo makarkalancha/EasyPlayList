@@ -183,6 +183,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         return false;
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     public class PlayerServiceBinder extends Binder {
         public PlayerService getService(){
             return PlayerService.this;
