@@ -42,17 +42,17 @@
         <receiver android:name="com.easyplaylist.broadcastreceiver.HeadphoneUplugged"/>
 
         <receiver
-        android:icon="@drawable/logo"
-        android:name="com.easyplaylist.widget.EasyPlaylistWidget"
-        android:label="Easy playlist widget"
-        >
-        <intent-filter>
-            <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-        </intent-filter>
-        <meta-data
-            android:name="android.appwidget.provider"
-            android:resource="@xml/widget_info"
-            />
+            android:icon="@drawable/logo"
+            android:name="com.easyplaylist.widget.EasyPlaylistWidget"
+            android:label="Easy playlist widget"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info"
+                />
         </receiver>
         <receiver
             android:name="com.easyplaylist.widget.WidgetIntentReceiver"
@@ -60,6 +60,9 @@
             >
             <intent-filter>
                 <action android:name="com.easyplaylist.widget.UPDATE"/>
+                <action android:name="com.easyplaylist.widget.PREVIOUS"/>
+                <action android:name="com.easyplaylist.widget.PLAY_PAUSE"/>
+                <action android:name="com.easyplaylist.widget.NEXT"/>
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

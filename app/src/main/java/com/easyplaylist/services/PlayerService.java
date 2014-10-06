@@ -3,6 +3,7 @@ package com.easyplaylist.services;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -13,11 +14,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.easyplaylist.UI.ActivityMain;
 import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
+import com.easyplaylist.widget.EasyPlaylistWidget;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,6 +36,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private int _currentlyPlayingIndex;
     private final IBinder _serviceBinder = new PlayerServiceBinder();
 
+    public static final String PREVIOUS = "com.easyplaylist.widget.PREVIOUS";
+    public static final String PLAY_PAUSE = "com.easyplaylist.widget.PLAY_PAUSE";
+    public static final String NEXT = "com.easyplaylist.widget.NEXT";
 
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -77,6 +83,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         _player = new MediaPlayer();
         initPlayer();
     }
+
+
 
     private void initPlayer(){
         _player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -185,6 +193,42 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if(action != null) {
+            int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+
+            Log.i(App.LOG_TAG, "onStartCommand called action:" + action + "; appWidgetId" + appWidgetId);
+
+            if(PREVIOUS.equals(action)){
+                rewind(getApplicationContext());
+            } else if(NEXT.equals(action)){
+                forward(getApplicationContext());
+            } else if(PLAY_PAUSE.equals(action)){
+                if(getCurrentlyPlayingIndex() > -1){
+                    if(isPlaying()){
+                        pause();
+                    }else{
+                        start();
+                    }
+                }else if(_songList.size() > 0){
+                    playSong(this,_songList.get(0));
+                    setCurrentlyPlayingIndex(0);
+                }
+            }
+
+            AppWidgetManager manager = AppWidgetManager.getInstance(getApplicationContext());
+            RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.view_player_widget);
+            Song currentSong = getCurrentSong();
+            remoteViews.setTextViewText(R.id.song_name, currentSong.getTitle());
+            remoteViews.setTextViewText(R.id.artist_name, currentSong.getArtist());
+
+            remoteViews.setOnClickPendingIntent(R.id.previous, EasyPlaylistWidget.buildPreviousPendingIntent(getApplicationContext(), appWidgetId));
+//        remoteViews.setOnClickPendingIntent(R.id.play_pause,EasyPlaylistWidget.buildButtonPendingIntent(context));
+//        remoteViews.setOnClickPendingIntent(R.id.next,EasyPlaylistWidget.buildButtonPendingIntent(context));
+
+            manager.updateAppWidget(appWidgetId, remoteViews);
+        }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -193,4 +237,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             return PlayerService.this;
         }
     }
+
+
 }

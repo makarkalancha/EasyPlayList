@@ -29,12 +29,12 @@ public final class R {
         public static final int no_image=0x7f020008;
     }
     public static final class id {
-        public static final int artist_name=0x7f090019;
+        public static final int artist_name=0x7f090014;
         public static final int back=0x7f09000f;
-        public static final int buttonContainer=0x7f090014;
+        public static final int buttonContainer=0x7f090015;
         public static final int buttons=0x7f090008;
-        public static final int contentContainer=0x7f090016;
-        public static final int desc=0x7f090018;
+        public static final int contentContainer=0x7f090017;
+        public static final int desc=0x7f090019;
         public static final int end_time=0x7f090007;
         public static final int firstLine=0x7f09000e;
         public static final int forward=0x7f090012;
@@ -53,8 +53,8 @@ public final class R {
         public static final int seek_bar=0x7f090005;
         public static final int song_name=0x7f090003;
         public static final int start_time=0x7f090006;
-        public static final int sync_button=0x7f090015;
-        public static final int title=0x7f090017;
+        public static final int sync_button=0x7f090016;
+        public static final int title=0x7f090018;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

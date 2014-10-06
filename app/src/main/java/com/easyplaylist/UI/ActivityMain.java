@@ -1,8 +1,5 @@
 package com.easyplaylist.UI;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -11,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,6 +17,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -31,17 +28,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.easyplaylist.broadcastreceiver.HeadphoneUplugged;
 import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.App;
-import com.easyplaylist.engine.Player;
 import com.easyplaylist.engine.R;
-import com.easyplaylist.interfaces.IUpdateUI;
-import com.easyplaylist.listeners.IncomingCallListener;
-import com.easyplaylist.services.EasyPlaylistService;
-import com.easyplaylist.services.EasyPlaylistService.EasyPlaylistBinder;
 import com.easyplaylist.services.PlayerService;
 import com.easyplaylist.utils.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActivityMain extends Activity{
 //    private Player _player;
