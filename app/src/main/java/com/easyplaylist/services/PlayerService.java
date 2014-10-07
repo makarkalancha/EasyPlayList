@@ -4,12 +4,17 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -17,6 +22,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.easyplaylist.UI.ActivityMain;
+import com.easyplaylist.broadcastreceiver.RemoteControlBroadcastReceiver;
 import com.easyplaylist.dao.Song;
 import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
@@ -28,7 +34,13 @@ import java.util.List;
 /**
  * Created by makar on 02/10/2014.
  */
-public class PlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener{
+public class PlayerService extends Service
+        implements
+        MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener,
+        MediaPlayer.OnErrorListener,
+        AudioManager.OnAudioFocusChangeListener
+{
     private static final int NOTIFY_ID = 1;
 
     private MediaPlayer _player;
@@ -36,9 +48,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private int _currentlyPlayingIndex;
     private final IBinder _serviceBinder = new PlayerServiceBinder();
 
-    public static final String PREVIOUS = "com.easyplaylist.widget.PREVIOUS";
-    public static final String PLAY_PAUSE = "com.easyplaylist.widget.PLAY_PAUSE";
-    public static final String NEXT = "com.easyplaylist.widget.NEXT";
+    public static final String PREVIOUS = "com.easyplaylist.action.PREVIOUS";
+    public static final String PLAY_PAUSE = "com.easyplaylist.action.PLAY_PAUSE";
+    public static final String NEXT = "com.easyplaylist.action.NEXT";
+    public static final String STOP = "com.easyplaylist.action.STOP";
+
+    private AudioManager _audioManager;
+    private ComponentName _remoteComponentName;
+    private RemoteControlClient _remoteControlClient;
+    private boolean _paused;
 
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -74,6 +92,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         Notification notification = builder.build();
 //                notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
         startForeground(NOTIFY_ID, notification);
+
+        if(_remoteControlClient != null){
+            _remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+        }
+        updateMetadata();
     }
 
     @Override
@@ -81,10 +104,18 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         super.onCreate();
         _currentlyPlayingIndex = -1;
         _player = new MediaPlayer();
+        _audioManager = (AudioManager) getApplicationContext().getSystemService(getApplicationContext().AUDIO_SERVICE);
+        _remoteComponentName = new ComponentName(getApplicationContext().getPackageName(), RemoteControlBroadcastReceiver.class.getName());
+//        registerRemoteClient(this);
         initPlayer();
     }
 
-
+    @Override
+    public void onDestroy() {
+        Log.i(App.LOG_TAG, "PlayerService->onDestroy");
+        unregisterRemoteClient();
+        super.onDestroy();
+    }
 
     private void initPlayer(){
         _player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -105,6 +136,16 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             _player.setDataSource(ctx, Uri.parse(song.getData()));
             _player.prepare();
 //            _mediaPlayer.prepareAsync();
+
+
+            int focusResult = _audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            if(focusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                Log.e(App.LOG_TAG, "Could not get audio focus");
+            }
+            registerRemoteClient(this);
+            _remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_BUFFERING);
+//            updateMetadata();
+
         } catch (IOException e) {
             Log.e(App.LOG_TAG, "PlayerService->playSong exception", e);
         }
@@ -176,6 +217,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     public void stop() {
         _player.stop();
+        unregisterRemoteClient();
     }
 
     @Override
@@ -195,7 +237,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
         if(action != null) {
-            int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+            int appWidgetId = 0;
+            Bundle bundle = intent.getExtras();
+            if(bundle != null) {
+                appWidgetId = bundle.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+            }
 
             Log.i(App.LOG_TAG, "onStartCommand called action:" + action + "; appWidgetId" + appWidgetId);
 
@@ -211,7 +257,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                         start();
                     }
                 }else if(_songList.size() > 0){
-                    playSong(this,_songList.get(0));
+                    playSong(this, _songList.get(0));
                     setCurrentlyPlayingIndex(0);
                 }
             }
@@ -229,7 +275,90 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             manager.updateAppWidget(appWidgetId, remoteViews);
         }
 
-        return super.onStartCommand(intent, flags, startId);
+//        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+    private void registerRemoteClient(Context context) {
+        try{
+            if(_remoteControlClient == null) {
+
+                _audioManager.registerMediaButtonEventReceiver(_remoteComponentName);
+                Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                mediaButtonIntent.setComponent(_remoteComponentName);
+                PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+                _remoteControlClient = new RemoteControlClient(mediaPendingIntent);
+                _audioManager.registerRemoteControlClient(_remoteControlClient);
+            }
+
+            _remoteControlClient.setTransportControlFlags(
+                    RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                    RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                    RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE |
+                    RemoteControlClient.FLAG_KEY_MEDIA_STOP |
+                    RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+                    RemoteControlClient.FLAG_KEY_MEDIA_NEXT
+            );
+        } catch (Exception e) {
+            Log.e(App.LOG_TAG, "Exception", e);
+        }
+    }
+
+    private void unregisterRemoteClient(){
+        try {
+            _audioManager.unregisterMediaButtonEventReceiver(_remoteComponentName);
+            _audioManager.unregisterRemoteControlClient(_remoteControlClient);
+            _remoteControlClient = null;
+        } catch (Exception e) {
+            Log.e(App.LOG_TAG, "Exception", e);
+        }
+    }
+
+    private void updateMetadata(){
+        if(_remoteControlClient != null) {
+            Song currentSong = getCurrentSong();
+            RemoteControlClient.MetadataEditor metadataEditor = _remoteControlClient.editMetadata(true);
+            metadataEditor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, currentSong.getAlbum());
+//            metadataEditor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, currentSong.getArtist());
+            metadataEditor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, currentSong.getArtist());
+            metadataEditor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, currentSong.getTitle());
+
+            Bitmap coverArt = currentSong.getAlbumart(this);
+            metadataEditor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, coverArt);
+            metadataEditor.apply();
+        }
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange){
+            case AudioManager.AUDIOFOCUS_GAIN: {
+                if (_player == null) {
+                    initPlayer();
+                }
+
+                if (!isPlaying()){
+                    start();
+                    _paused = false;
+                }
+
+                _player.setVolume(1.0f,1.0f); //Turn it up
+            };break;
+
+            case AudioManager.AUDIOFOCUS_LOSS:{
+                stop();
+            };break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:{
+                pause();
+            };break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:{
+                if(isPlaying()){
+                    _player.setVolume(.1f, .1f); //turn it down!
+                }
+            };break;
+        }
     }
 
     public class PlayerServiceBinder extends Binder {

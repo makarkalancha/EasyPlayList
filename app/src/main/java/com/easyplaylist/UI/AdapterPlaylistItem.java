@@ -59,8 +59,6 @@ public class AdapterPlaylistItem extends ArrayAdapter<Song>{
             viewHolder.text2 = (TextView) rowView.findViewById(R.id.secondLine);
             viewHolder.image = (ImageView) rowView.findViewById(R.id.icon);
             rowView.setTag(viewHolder);
-
-
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();

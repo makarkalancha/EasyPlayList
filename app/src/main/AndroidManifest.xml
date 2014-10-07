@@ -37,7 +37,14 @@
             android:name="com.easyplaylist.services.PlayerService"
             android:icon="@drawable/logo"
             android:label="@string/service_name"
-            />
+            >
+            <intent-filter>
+                <action android:name="com.easyplaylist.action.PREVIOUS" />
+                <action android:name="com.easyplaylist.action.PLAY_PAUSE" />
+                <action android:name="com.easyplaylist.action.NEXT" />
+                <action android:name="com.easyplaylist.action.STOP" />
+            </intent-filter>
+        </service>
 
         <receiver android:name="com.easyplaylist.broadcastreceiver.HeadphoneUplugged"/>
 
@@ -54,22 +61,30 @@
                 android:resource="@xml/widget_info"
                 />
         </receiver>
+
+        <receiver
+            android:icon="@drawable/logo"
+            android:name="com.easyplaylist.broadcastreceiver.RemoteControlBroadcastReceiver"
+            >
+
+        </receiver>
+        <!--
         <receiver
             android:name="com.easyplaylist.widget.WidgetIntentReceiver"
             android:label="Easy playlist receiver"
             >
             <intent-filter>
-                <action android:name="com.easyplaylist.widget.UPDATE"/>
-                <action android:name="com.easyplaylist.widget.PREVIOUS"/>
-                <action android:name="com.easyplaylist.widget.PLAY_PAUSE"/>
-                <action android:name="com.easyplaylist.widget.NEXT"/>
+                <action android:name="com.easyplaylist.action.UPDATE"/>
+                <action android:name="com.easyplaylist.action.PREVIOUS"/>
+                <action android:name="com.easyplaylist.action.PLAY_PAUSE"/>
+                <action android:name="com.easyplaylist.action.NEXT"/>
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info"
                 />
         </receiver>
-
+        -->
     </application>
 
 </manifest>
