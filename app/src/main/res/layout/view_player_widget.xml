@@ -17,40 +17,49 @@
         android:src="@drawable/logo"
         android:layout_gravity="center"
         />-->
-    <TextView
-        android:id="@+id/song_name"
+
+    <LinearLayout
+        android:id="@+id/track_artist"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="30dip"
-        android:textStyle="bold"
-        android:textAlignment="center"
-        android:ellipsize="marquee"
-        android:fadingEdge="horizontal"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:scrollHorizontally="true"
-        android:singleLine="true"
-        android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
 
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        />
+        >
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30dip"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
 
-    <TextView
-        android:id="@+id/artist_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dip"
-        android:textAlignment="center"
-        android:ellipsize="marquee"
-        android:fadingEdge="horizontal"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:scrollHorizontally="true"
-        android:singleLine="true"
-        android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            />
 
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        />
+        <TextView
+            android:id="@+id/artist_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dip"
+            android:textAlignment="center"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            />
+    </LinearLayout>
     <!--
     android:textAppearance="?android:attr/textAppearanceSmall"
 

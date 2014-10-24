@@ -41,17 +41,18 @@ public class PlayerService extends Service
         MediaPlayer.OnErrorListener,
         AudioManager.OnAudioFocusChangeListener
 {
+    public static final String PREVIOUS = "com.easyplaylist.action.PREVIOUS";
+    public static final String PLAY_PAUSE = "com.easyplaylist.action.PLAY_PAUSE";
+    public static final String NEXT = "com.easyplaylist.action.NEXT";
+    public static final String STOP = "com.easyplaylist.action.STOP";
+
     private static final int NOTIFY_ID = 1;
+    private static boolean isRunning = false;
 
     private MediaPlayer _player;
     private List<Song> _songList;
     private int _currentlyPlayingIndex;
     private final IBinder _serviceBinder = new PlayerServiceBinder();
-
-    public static final String PREVIOUS = "com.easyplaylist.action.PREVIOUS";
-    public static final String PLAY_PAUSE = "com.easyplaylist.action.PLAY_PAUSE";
-    public static final String NEXT = "com.easyplaylist.action.NEXT";
-    public static final String STOP = "com.easyplaylist.action.STOP";
 
     private AudioManager _audioManager;
     private ComponentName _remoteComponentName;
@@ -108,12 +109,15 @@ public class PlayerService extends Service
         _remoteComponentName = new ComponentName(getApplicationContext().getPackageName(), RemoteControlBroadcastReceiver.class.getName());
 //        registerRemoteClient(this);
         initPlayer();
+        Log.i(App.LOG_TAG, "PlayerService->onCreate");
+        isRunning = true;
     }
 
     @Override
     public void onDestroy() {
         Log.i(App.LOG_TAG, "PlayerService->onDestroy");
         unregisterRemoteClient();
+        isRunning = false;
         super.onDestroy();
     }
 
@@ -367,5 +371,8 @@ public class PlayerService extends Service
         }
     }
 
+    public static boolean isRunning() {
+        return PlayerService.isRunning;
+    }
 
 }

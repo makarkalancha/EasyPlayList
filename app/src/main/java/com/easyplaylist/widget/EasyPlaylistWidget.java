@@ -6,10 +6,11 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.view.WindowManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.easyplaylist.UI.ActivityMain;
+import com.easyplaylist.engine.App;
 import com.easyplaylist.engine.R;
 import com.easyplaylist.services.PlayerService;
 
@@ -18,6 +19,7 @@ import com.easyplaylist.services.PlayerService;
  */
 public class EasyPlaylistWidget extends AppWidgetProvider {
 
+    private String appName;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -43,6 +45,7 @@ public class EasyPlaylistWidget extends AppWidgetProvider {
 
         for (int appWidgetId : appWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.view_player_widget);
+            remoteViews.setOnClickPendingIntent(R.id.track_artist, buildTrackArtistPendingIntent(context, appWidgetId));
             remoteViews.setOnClickPendingIntent(R.id.previous, buildPreviousPendingIntent(context, appWidgetId));
             remoteViews.setOnClickPendingIntent(R.id.next, buildNextPendingIntent(context, appWidgetId));
             remoteViews.setOnClickPendingIntent(R.id.play_pause, buildPlayPausePendingIntent(context, appWidgetId));
@@ -55,9 +58,9 @@ public class EasyPlaylistWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.i(App.LOG_TAG, "onReceive"+intent.getAction());
+        this.appName = context.getResources().getString(R.string.app_name);
         super.onReceive(context, intent);
-//        Intent newIntent = new Intent(context, PlayerService.class);
-//        newIntent
     }
 
     //    public static PendingIntent buildButtonPendingIntent(Context context){
@@ -66,6 +69,11 @@ public class EasyPlaylistWidget extends AppWidgetProvider {
 //        intent.setAction(WidgetIntentReceiver.ACTION);
 //        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 //    }
+
+    public static PendingIntent buildTrackArtistPendingIntent(Context context, int appWidgetId){
+        Intent intent = new Intent(context, ActivityMain.class);
+        return PendingIntent.getActivity(context, 0, intent, 0);
+    }
 
     public static PendingIntent buildPreviousPendingIntent(Context context, int appWidgetId){
 //        Intent intent = new Intent(context.getApplicationContext(), PlayerService.class);
@@ -88,6 +96,7 @@ public class EasyPlaylistWidget extends AppWidgetProvider {
     }
 
     public static PendingIntent buildPlayPausePendingIntent(Context context, int appWidgetId) {
+        Log.i(App.LOG_TAG, "buildPlayPausePendingIntent");
 //        Intent intent = new Intent(context.getApplicationContext(), PlayerService.class);
 ////        Intent intent = new Intent();
 //        intent.setAction(PlayerService.PLAY_PAUSE);
@@ -118,12 +127,14 @@ public class EasyPlaylistWidget extends AppWidgetProvider {
 //                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 //    }
 
-    private static CharSequence getDesc() {
-        return "Sync to see some of our funniest joke collections";
+//    private static CharSequence getDesc() {
+    private CharSequence getDesc() {
+        return "to launch "+this.appName;
     }
 
-    private static CharSequence getTitle() {
-        return "Funny Jokes";
+//    private static CharSequence getTitle() {
+    private CharSequence getTitle() {
+        return "Touch me";
     }
 
     public static void pushWidgetUpdate(Context context, RemoteViews remoteViews) {
