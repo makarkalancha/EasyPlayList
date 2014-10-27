@@ -62,8 +62,8 @@ public class PlayerService extends Service
     public void onCompletion(MediaPlayer mp) {
         Log.i(App.LOG_TAG, "DefaultOnCompletionListener Player.play");
         forward(null);
-        Intent intent = new Intent("updateUI");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+//        Intent intent = new Intent("updateUI");
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
@@ -190,6 +190,8 @@ public class PlayerService extends Service
             }
             playSong(ctx, _songList.get(_currentlyPlayingIndex));
         }
+        Intent intent = new Intent("updateUI");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public void rewind(Context ctx){
@@ -202,6 +204,8 @@ public class PlayerService extends Service
             }
             playSong(ctx, _songList.get(_currentlyPlayingIndex));
         }
+        Intent intent = new Intent("updateUI");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public void seekTo(int progress){
@@ -277,8 +281,8 @@ public class PlayerService extends Service
             }
 
             remoteViews.setOnClickPendingIntent(R.id.previous, EasyPlaylistWidget.buildPreviousPendingIntent(getApplicationContext(), appWidgetId));
-            remoteViews.setOnClickPendingIntent(R.id.play_pause,EasyPlaylistWidget.buildPlayPausePendingIntent(getApplicationContext(), appWidgetId));
-            remoteViews.setOnClickPendingIntent(R.id.next,EasyPlaylistWidget.buildNextPendingIntent(getApplicationContext(), appWidgetId));
+            remoteViews.setOnClickPendingIntent(R.id.play_pause, EasyPlaylistWidget.buildPlayPausePendingIntent(getApplicationContext(), appWidgetId));
+            remoteViews.setOnClickPendingIntent(R.id.next, EasyPlaylistWidget.buildNextPendingIntent(getApplicationContext(), appWidgetId));
 
             manager.updateAppWidget(appWidgetId, remoteViews);
         }

@@ -62,7 +62,8 @@ public class ActivityMain extends Activity{
     private BroadcastReceiver _headphoneUpluggedBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && _playerService != null) {
+//            if(intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && _playerService != null) {
+            if(intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && musicBound) {
                 int state = intent.getIntExtra("state", -1);
                 switch (state) {
                     case 0:
@@ -286,7 +287,7 @@ public class ActivityMain extends Activity{
             public void onClick(View view) {
 //                _player.forward(ActivityMain.this);
                 _playerService.forward(ActivityMain.this);
-                updateUI();
+//                updateUI();
             }
         });
 
@@ -295,7 +296,7 @@ public class ActivityMain extends Activity{
             public void onClick(View view) {
 //                _player.rewind(ActivityMain.this);
                 _playerService.rewind(ActivityMain.this);
-                updateUI();
+//                updateUI();
             }
         });
 
@@ -460,6 +461,9 @@ public class ActivityMain extends Activity{
     protected void onResume() {
         Log.i(App.LOG_TAG,"onResume");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("updateUI"));
+        if(musicBound) {
+            updateUI();
+        }
         super.onResume();
     }
 

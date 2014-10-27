@@ -37,12 +37,14 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+
 
             android:focusable="true"
             android:focusableInTouchMode="true"
             />
-
+<!--
+android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+-->
         <TextView
             android:id="@+id/artist_name"
             android:layout_width="match_parent"
@@ -54,13 +56,14 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
+
 
             android:focusable="true"
             android:focusableInTouchMode="true"
             />
     </LinearLayout>
     <!--
+    android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_name_song_name"
     android:textAppearance="?android:attr/textAppearanceSmall"
 
     android:clickable="true"
