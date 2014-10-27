@@ -47,7 +47,6 @@ public class PlayerService extends Service
     public static final String STOP = "com.easyplaylist.action.STOP";
 
     private static final int NOTIFY_ID = 1;
-    private static boolean isRunning = false;
 
     private MediaPlayer _player;
     private List<Song> _songList;
@@ -110,14 +109,12 @@ public class PlayerService extends Service
 //        registerRemoteClient(this);
         initPlayer();
         Log.i(App.LOG_TAG, "PlayerService->onCreate");
-        isRunning = true;
     }
 
     @Override
     public void onDestroy() {
         Log.i(App.LOG_TAG, "PlayerService->onDestroy");
         unregisterRemoteClient();
-        isRunning = false;
         super.onDestroy();
     }
 
@@ -240,7 +237,7 @@ public class PlayerService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
-        if(action != null) {
+        if(action != null && _songList != null) {
             int appWidgetId = 0;
             Bundle bundle = intent.getExtras();
             if(bundle != null) {
@@ -271,10 +268,17 @@ public class PlayerService extends Service
             Song currentSong = getCurrentSong();
             remoteViews.setTextViewText(R.id.song_name, currentSong.getTitle());
             remoteViews.setTextViewText(R.id.artist_name, currentSong.getArtist());
+            if(isPlaying()){
+                remoteViews.setImageViewResource(R.id.play_pause, R.drawable.ic_media_pause);
+                Log.i(App.LOG_TAG, "onStartCommand is Playing:" + isPlaying()+"; ic_action_pause");
+            }else {
+                remoteViews.setImageViewResource(R.id.play_pause, R.drawable.ic_media_play);
+                Log.i(App.LOG_TAG, "onStartCommand is Playing:" + isPlaying()+"; ic_action_play");
+            }
 
             remoteViews.setOnClickPendingIntent(R.id.previous, EasyPlaylistWidget.buildPreviousPendingIntent(getApplicationContext(), appWidgetId));
-//        remoteViews.setOnClickPendingIntent(R.id.play_pause,EasyPlaylistWidget.buildButtonPendingIntent(context));
-//        remoteViews.setOnClickPendingIntent(R.id.next,EasyPlaylistWidget.buildButtonPendingIntent(context));
+            remoteViews.setOnClickPendingIntent(R.id.play_pause,EasyPlaylistWidget.buildPlayPausePendingIntent(getApplicationContext(), appWidgetId));
+            remoteViews.setOnClickPendingIntent(R.id.next,EasyPlaylistWidget.buildNextPendingIntent(getApplicationContext(), appWidgetId));
 
             manager.updateAppWidget(appWidgetId, remoteViews);
         }
@@ -370,9 +374,4 @@ public class PlayerService extends Service
             return PlayerService.this;
         }
     }
-
-    public static boolean isRunning() {
-        return PlayerService.isRunning;
-    }
-
 }

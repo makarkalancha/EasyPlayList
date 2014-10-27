@@ -70,6 +70,8 @@ public class EasyPlaylistWidget extends AppWidgetProvider {
 //        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 //    }
 
+
+
     public static PendingIntent buildTrackArtistPendingIntent(Context context, int appWidgetId){
         Intent intent = new Intent(context, ActivityMain.class);
         return PendingIntent.getActivity(context, 0, intent, 0);

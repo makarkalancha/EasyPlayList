@@ -89,13 +89,13 @@ android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_
             android:id="@+id/previous"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_previous"
+            android:src="@drawable/ic_media_previous"
 
             android:layout_weight="1"
 
             />
         <!--
-
+android:src="@android:drawable/ic_media_previous"
 
         android:background="#00000000"
          android:background="#ffff0000"
@@ -105,13 +105,13 @@ android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_
             android:id="@+id/play_pause"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_play"
+            android:src="@drawable/ic_media_play"
 
             android:layout_weight="1"
 
             />
         <!--
-
+android:src="@android:drawable/ic_media_play"
 
          android:background="#00000000"
         -->
@@ -119,12 +119,13 @@ android:text="_song_name_song_name_song_name_song_name_song_name_song_name_song_
             android:id="@+id/next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_next"
+            android:src="@drawable/ic_media_next"
 
             android:layout_weight="1"
 
             />
         <!--
+        android:src="@android:drawable/ic_media_next"
 
 
         android:background="#ffff0000"
